@@ -18,6 +18,8 @@ interface EnvConfig {
     GOOGLE_CALLBACK_URL: string,
     EXPRESS_SESSION_SECRET: string,
     FRONTEND_URL: string,
+    STRIPE_SECRET_KEY: string,
+    STRIPE_WEBHOOK_SECRET?: string,
     SSL: {
         SSL_STORE_ID: string,
         SSL_STORE_PASS: string,
@@ -97,6 +99,8 @@ const loadEnvVaribales = (): EnvConfig => {
         GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
         EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
         FRONTEND_URL: process.env.FRONTEND_URL as string,
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
         SSL: {
             SSL_STORE_ID: process.env.SSL_STORE_ID as string,
             SSL_STORE_PASS: process.env.SSL_STORE_PASS as string,

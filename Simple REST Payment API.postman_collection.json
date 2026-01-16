@@ -517,6 +517,199 @@
 			]
 		},
 		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "Create Product (Admin, Super Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data._id) {",
+									"        pm.collectionVariables.set('productId', jsonData.data._id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Premium Wireless Headphones\",\n  \"description\": \"High-quality wireless headphones with noise cancellation, 30-hour battery life, and superior sound quality. Perfect for music lovers and professionals.\",\n  \"price\": 149.99,\n  \"quantity\": 50,\n  \"image\": \"https://example.com/images/headphones.jpg\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/product/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"create"
+							]
+						},
+						"description": "Create a new product (Admin and Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/product?page=1&limit=10&sort=-createdAt&searchTerm=wireless",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page"
+								},
+								{
+									"key": "sort",
+									"value": "-createdAt",
+									"description": "Sort by field (- for descending)"
+								},
+								{
+									"key": "searchTerm",
+									"value": "wireless",
+									"description": "Search in name and description"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"description": "Filter by price",
+									"disabled": true
+								},
+								{
+									"key": "isActive",
+									"value": "",
+									"description": "Filter by active status",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all products with pagination, search, and filtering (Public access)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"{{productId}}"
+							]
+						},
+						"description": "Get single product by ID (Public access)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product (Admin, Super Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Premium Wireless Headphones Pro\",\n  \"price\": 179.99,\n  \"quantity\": 45,\n  \"description\": \"Updated: High-quality wireless headphones with advanced noise cancellation, 35-hour battery life, and premium sound quality.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"{{productId}}"
+							]
+						},
+						"description": "Update product by ID (Admin and Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product (Admin, Super Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"{{productId}}"
+							]
+						},
+						"description": "Soft delete product by ID (Admin and Super Admin only)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Health Check",
 			"request": {
 				"method": "GET",
@@ -548,6 +741,11 @@
 		},
 		{
 			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "productId",
 			"value": "",
 			"type": "string"
 		}
