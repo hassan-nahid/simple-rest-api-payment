@@ -31,6 +31,5 @@ router.post("/google", (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     const redirect = req.query.redirect || "/";
     passport_1.default.authenticate("google", { scope: ["profile", "email"], state: redirect })(req, res, next);
 }));
-// api/v1/auth/google/callback?state=/booking
 router.get("/google/callback", passport_1.default.authenticate("google", { failureRedirect: `${env_1.envVars.FRONTEND_URL}/login?error=There is some issues with your account. Please contact with out support team!` }), auth_controller_1.AuthControllers.googleCallbackController);
 exports.AuthRoutes = router;

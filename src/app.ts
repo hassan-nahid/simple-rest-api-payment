@@ -13,8 +13,6 @@ import { OrderControllers } from "./app/modules/order/order.controller";
 
 const app = express();
 
-// Stripe webhook endpoint MUST be before express.json() middleware
-// This allows raw body access for webhook signature verification
 app.post(
     '/api/v1/order/webhook',
     express.raw({ type: 'application/json' }),

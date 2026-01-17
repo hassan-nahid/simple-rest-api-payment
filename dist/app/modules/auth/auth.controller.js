@@ -34,7 +34,6 @@ const userTokens_1 = require("../../utils/userTokens");
 const auth_service_1 = require("./auth.service");
 const CatchAsync_1 = require("../../utils/CatchAsync");
 const credentialsLogin = (0, CatchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const loginInfo = await AuthServices.credentialsLogin(req.body)
     passport_1.default.authenticate("local", (err, user, info) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
             return next(new AppError_1.default(401, err));
@@ -43,7 +42,6 @@ const credentialsLogin = (0, CatchAsync_1.catchAsync)((req, res, next) => __awai
             return next(new AppError_1.default(401, info.message));
         }
         const userTokens = yield (0, userTokens_1.createUserTokens)(user);
-        // delete user.toObject().password
         const _a = user.toObject(), { password: pass } = _a, rest = __rest(_a, ["password"]);
         (0, setCookie_1.setAuthCookie)(res, userTokens);
         (0, sendResponse_1.sendResponse)(res, {
@@ -93,7 +91,6 @@ const logout = (0, CatchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0
 const changePassword = (0, CatchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { newPassword, oldPassword, currentPassword } = req.body;
     const decodedToken = req.user;
-    // Support both 'oldPassword' and 'currentPassword' field names
     const passwordToCheck = oldPassword || currentPassword;
     if (!passwordToCheck) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Current password is required");

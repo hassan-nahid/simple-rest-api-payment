@@ -135,7 +135,6 @@ const changePassword = async (oldPassword: string, newPassword: string, decodedT
 
 
 export const AuthServices = {
-    // credentialsLogin,
     getNewAccessToken,
     changePassword,
     setPassword,

@@ -13,8 +13,6 @@ import { AuthServices } from "./auth.service"
 import { catchAsync } from "../../utils/CatchAsync"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // const loginInfo = await AuthServices.credentialsLogin(req.body)
-
     passport.authenticate("local", async (err: any, user: any, info: any) => {
 
         if (err) {
@@ -28,8 +26,6 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
         }
 
         const userTokens = await createUserTokens(user)
-
-        // delete user.toObject().password
 
         const { password: pass, ...rest } = user.toObject()
 
@@ -93,7 +89,6 @@ const changePassword = catchAsync(async (req: Request, res: Response, next: Next
     const { newPassword, oldPassword, currentPassword } = req.body;
     const decodedToken = req.user
 
-    // Support both 'oldPassword' and 'currentPassword' field names
     const passwordToCheck = oldPassword || currentPassword;
 
     if (!passwordToCheck) {

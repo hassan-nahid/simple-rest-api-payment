@@ -15,8 +15,6 @@ const globalErrorHandler_1 = require("./app/middleware/globalErrorHandler");
 const notFound_1 = __importDefault(require("./app/middleware/notFound"));
 const order_controller_1 = require("./app/modules/order/order.controller");
 const app = (0, express_1.default)();
-// Stripe webhook endpoint MUST be before express.json() middleware
-// This allows raw body access for webhook signature verification
 app.post('/api/v1/order/webhook', express_1.default.raw({ type: 'application/json' }), order_controller_1.OrderControllers.handleStripeWebhook);
 app.use((0, express_session_1.default)({
     secret: env_1.envVars.EXPRESS_SESSION_SECRET,

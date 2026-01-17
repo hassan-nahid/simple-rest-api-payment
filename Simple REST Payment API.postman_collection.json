@@ -1,1021 +1,972 @@
 {
-	"info": {
-		"_postman_id": "5ed81fce-e1f5-4c15-9467-d4ca7359c0c3",
-		"name": "Simple REST Payment API",
-		"description": "Complete Postman collection for all endpoints in the Simple REST Payment API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "51566938",
-		"_collection_link": "https://hassan-nahid-dev-5353437.postman.co/workspace/Hassan-Nahid's-Workspace~681c161b-8453-4465-821f-6e560e63fcb8/collection/51566938-5ed81fce-e1f5-4c15-9467-d4ca7359c0c3?action=share&source=collection_link&creator=51566938"
-	},
-	"item": [
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    const jsonData = pm.response.json();",
-									"    if (jsonData.data && jsonData.data.accessToken) {",
-									"        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
-									"    }",
-									"    if (jsonData.data && jsonData.data.refreshToken) {",
-									"        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "\n\n// {\n//   \"email\": \"hassan.nahid.dev@gmail.com\",\n//   \"password\": \"Password123!\"\n// }\n\n// Super Admin credentials\n{\n  \"email\": \"super@gmail.com\",\n  \"password\": \"12345678\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"login"
-							]
-						},
-						"description": "Login with email and password credentials"
-					},
-					"response": []
-				},
-				{
-					"name": "Refresh Token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Cookie",
-								"value": "refreshToken={{refreshToken}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/refresh-token",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"refresh-token"
-							]
-						},
-						"description": "Get new access token using refresh token"
-					},
-					"response": []
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"logout"
-							]
-						},
-						"description": "Logout user and invalidate tokens"
-					},
-					"response": []
-				},
-				{
-					"name": "Change Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"currentPassword\": \"NewPassword123!\",\n  \"newPassword\": \"Password123!\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/change-password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"change-password"
-							]
-						},
-						"description": "Change password for authenticated user (requires all roles)"
-					},
-					"response": []
-				},
-				{
-					"name": "Set Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"password\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/set-password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"set-password"
-							]
-						},
-						"description": "Set password for social login users (requires all roles)"
-					},
-					"response": []
-				},
-				{
-					"name": "Forgot Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/forgot-password",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"forgot-password"
-							]
-						},
-						"description": "Request password reset email"
-					},
-					"response": []
-				},
-				{
-					"name": "Reset Password For forget password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer token_from_forgot_password_url_send_by_email",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"newPassword\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/reset-password ",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"reset-password "
-							]
-						},
-						"description": "Reset password using reset token (requires all roles)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "User",
-			"item": [
-				{
-					"name": "Register User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Hassan Nahid\",\n  \"email\": \"hassan.nahid.dev@gmail.com\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+8801712345678\",\n  \"address\": \"123 Main Street, Dhaka, Bangladesh\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"register"
-							]
-						},
-						"description": "Register a new user. Password must be at least 8 characters with 1 uppercase, 1 special character, and 1 number."
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Users (Admin, Super Admin)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/all-users?page=1&limit=10&sort=-createdAt",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"all-users"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"description": "Page number"
-								},
-								{
-									"key": "limit",
-									"value": "10",
-									"description": "Items per page"
-								},
-								{
-									"key": "sort",
-									"value": "-createdAt",
-									"description": "Sort by field (- for descending)"
-								},
-								{
-									"key": "searchTerm",
-									"value": "",
-									"description": "Search term",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Get all users (Admin and Super Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Me",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/me",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"me"
-							]
-						},
-						"description": "Get current logged-in user profile (all roles)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single User (Admin, Super Admin)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "696a0c9e9cf775798380eaff",
-									"description": "User ID"
-								}
-							]
-						},
-						"description": "Get single user by ID (Admin and Super Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Super Admin\",\n  \"phone\": \"+8801887654321\",\n  \"address\": \"456 New Street, Dhaka, Bangladesh\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/:id",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "696a08a69cf775798380eafc",
-									"description": "User ID"
-								}
-							]
-						},
-						"description": "Update user profile (all roles, users can update their own profile)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "OTP For User Verify",
-			"item": [
-				{
-					"name": "Send OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/otp/send",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"otp",
-								"send"
-							]
-						},
-						"description": "Send OTP to user's email"
-					},
-					"response": []
-				},
-				{
-					"name": "Verify OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\",\n  \"otp\": \"611550\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/otp/verify",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"otp",
-								"verify"
-							]
-						},
-						"description": "Verify OTP sent to user's email"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Product",
-			"item": [
-				{
-					"name": "Create Product (Admin, Super Admin)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const jsonData = pm.response.json();",
-									"    if (jsonData.data && jsonData.data._id) {",
-									"        pm.collectionVariables.set('productId', jsonData.data._id);",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Premium Wireless Headphones\",\n  \"description\": \"High-quality wireless headphones with noise cancellation, 30-hour battery life, and superior sound quality. Perfect for music lovers and professionals.\",\n  \"price\": 149.99,\n  \"quantity\": 50,\n  \"image\": \"https://example.com/images/headphones.jpg\",\n  \"isActive\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/product/create",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"product",
-								"create"
-							]
-						},
-						"description": "Create a new product (Admin and Super Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Products",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/product?page=1&limit=10&sort=-createdAt&searchTerm=wireless",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"product"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"description": "Page number"
-								},
-								{
-									"key": "limit",
-									"value": "10",
-									"description": "Items per page"
-								},
-								{
-									"key": "sort",
-									"value": "-createdAt",
-									"description": "Sort by field (- for descending)"
-								},
-								{
-									"key": "searchTerm",
-									"value": "wireless",
-									"description": "Search in name and description"
-								},
-								{
-									"key": "price",
-									"value": "",
-									"description": "Filter by price",
-									"disabled": true
-								},
-								{
-									"key": "isActive",
-									"value": "",
-									"description": "Filter by active status",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Get all products with pagination, search, and filtering (Public access)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Product",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"product",
-								"{{productId}}"
-							]
-						},
-						"description": "Get single product by ID (Public access)"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Product (Admin, Super Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Premium Wireless Headphones Pro\",\n  \"price\": 179.99,\n  \"quantity\": 45,\n  \"description\": \"Updated: High-quality wireless headphones with advanced noise cancellation, 35-hour battery life, and premium sound quality.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"product",
-								"{{productId}}"
-							]
-						},
-						"description": "Update product by ID (Admin and Super Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Product (Admin, Super Admin)",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/product/{{productId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"product",
-								"{{productId}}"
-							]
-						},
-						"description": "Soft delete product by ID (Admin and Super Admin only)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Order & Payment",
-			"item": [
-				{
-					"name": "Create Order (Get Checkout URL)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 201) {",
-									"    const jsonData = pm.response.json();",
-									"    ",
-									"    // Save order ID",
-									"    if (jsonData.data && jsonData.data.order && jsonData.data.order._id) {",
-									"        pm.collectionVariables.set('orderId', jsonData.data.order._id);",
-									"        console.log('✅ Order ID: ' + jsonData.data.order._id);",
-									"    }",
-									"    ",
-									"    // Save and display checkout URL",
-									"    if (jsonData.data && jsonData.data.checkoutUrl) {",
-									"        pm.collectionVariables.set('checkoutUrl', jsonData.data.checkoutUrl);",
-									"        console.log('');",
-									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
-									"        console.log('🎉 ORDER CREATED SUCCESSFULLY!');",
-									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
-									"        console.log('');",
-									"        console.log('📋 CHECKOUT URL:');",
-									"        console.log(jsonData.data.checkoutUrl);",
-									"        console.log('');",
-									"        console.log('👉 COPY THE URL ABOVE AND PASTE IN YOUR BROWSER');",
-									"        console.log('💳 Use test card: 4242 4242 4242 4242');",
-									"        console.log('📅 Expiry: 12/26 | CVC: 123');",
-									"        console.log('');",
-									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"items\": [\n    {\n      \"product\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"paymentMethod\": \"STRIPE\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerName\": \"John Doe\",\n  \"shippingAddress\": \"123 Main St, New York, NY 10001\",\n  \"notes\": \"Please handle with care\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order/create",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order",
-								"create"
-							]
-						},
-						"description": "Create order and get Stripe Checkout URL. Copy the checkoutUrl from Console tab and open in browser to complete payment."
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Orders",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order?page=1&limit=10&sort=-createdAt",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"description": "Page number"
-								},
-								{
-									"key": "limit",
-									"value": "10",
-									"description": "Items per page"
-								},
-								{
-									"key": "sort",
-									"value": "-createdAt",
-									"description": "Sort by field"
-								},
-								{
-									"key": "orderStatus",
-									"value": "PENDING",
-									"description": "Filter by order status",
-									"disabled": true
-								},
-								{
-									"key": "paymentStatus",
-									"value": "PAID",
-									"description": "Filter by payment status",
-									"disabled": true
-								}
-							]
-						},
-						"description": "Get all orders (Users get their own, Admins get all)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Order",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order",
-								"{{orderId}}"
-							]
-						},
-						"description": "Get order details by ID. Use this to verify payment status after completing Stripe checkout."
-					},
-					"response": []
-				},
-				{
-					"name": "Update Order Status (Admin)",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"orderStatus\": \"PROCESSING\",\n  \"paymentStatus\": \"PAID\",\n  \"notes\": \"Payment verified and order is being processed\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}/status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order",
-								"{{orderId}}",
-								"status"
-							]
-						},
-						"description": "Update order status (Admin and Super Admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Cancel Order",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{accessToken}}",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}/cancel",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order",
-								"{{orderId}}",
-								"cancel"
-							]
-						},
-						"description": "Cancel pending order, expire Stripe session, and restore product stock"
-					},
-					"response": []
-				},
-				{
-					"name": "Stripe Webhook",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "stripe-signature",
-								"value": "your_stripe_signature_here",
-								"description": "Stripe webhook signature"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"object\": \"event\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_123\",\n      \"amount\": 29999,\n      \"currency\": \"usd\",\n      \"status\": \"succeeded\"\n    }\n  }\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/order/webhook",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"order",
-								"webhook"
-							]
-						},
-						"description": "⚠️ Webhook endpoint called automatically by Stripe after payment events. Don't call manually unless testing."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Health Check",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						""
-					]
-				},
-				"description": "Basic health check endpoint"
-			},
-			"response": []
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:5000",
-			"type": "string"
-		},
-		{
-			"key": "accessToken",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "refreshToken",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "productId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "orderId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "checkoutUrl",
-			"value": "",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "ca86fd56-9f0c-449e-abd4-e9f5950c6e31",
+    "name": "Simple REST Payment API",
+    "description": "Complete Postman collection for all endpoints in the Simple REST Payment API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51566938",
+    "_collection_link": "https://go.postman.co/collection/51566938-ca86fd56-9f0c-449e-abd4-e9f5950c6e31?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) {",
+                  "        pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\n\n// {\n//   \"email\": \"hassan.nahid.dev@gmail.com\",\n//   \"password\": \"Password123!\"\n// }\n\n// Super Admin credentials\n{\n  \"email\": \"super@gmail.com\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login with email and password credentials"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "refreshToken={{refreshToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Get new access token using refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout user and invalidate tokens"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"NewPassword123!\",\n  \"newPassword\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Change password for authenticated user (requires all roles)"
+          },
+          "response": []
+        },
+        {
+          "name": "Set Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/set-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "set-password"
+              ]
+            },
+            "description": "Set password for social login users (requires all roles)"
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Request password reset email"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password For forget password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer token_from_forgot_password_url_send_by_email",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password ",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "reset-password "
+              ]
+            },
+            "description": "Reset password using reset token (requires all roles)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hassan Nahid\",\n  \"email\": \"hassan.nahid.dev@gmail.com\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+8801712345678\",         // optional\n  \"address\": \"123 Main Street, Dhaka, Bangladesh\"      // optional\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "register"
+              ]
+            },
+            "description": "Register a new user. Password must be at least 8 characters with 1 uppercase, 1 special character, and 1 number."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin, Super Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/all-users?page=1&limit=10&sort=-createdAt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "all-users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt",
+                  "description": "Sort by field (- for descending)"
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "",
+                  "description": "Search term",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all users (Admin and Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "me"
+              ]
+            },
+            "description": "Get current logged-in user profile (all roles)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single User (Admin, Super Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "696a0c9e9cf775798380eaff",
+                  "description": "User ID"
+                }
+              ]
+            },
+            "description": "Get single user by ID (Admin and Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Super Admin\",\n  \"phone\": \"+8801887654321\",\n  \"address\": \"456 New Street, Dhaka, Bangladesh\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "696a08a69cf775798380eafc",
+                  "description": "User ID"
+                }
+              ]
+            },
+            "description": "Update user profile (all roles, users can update their own profile)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "OTP For User Verify",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/otp/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "otp",
+                "send"
+              ]
+            },
+            "description": "Send OTP to user's email"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hassan.nahid.dev@gmail.com\",\n  \"otp\": \"611550\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/otp/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "otp",
+                "verify"
+              ]
+            },
+            "description": "Verify OTP sent to user's email"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "item": [
+        {
+          "name": "Create Product (Admin, Super Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('productId', jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Wireless Headphones\",\n  \"description\": \"High-quality wireless headphones with noise cancellation, 30-hour battery life, and superior sound quality. Perfect for music lovers and professionals.\",\n  \"price\": 149.99,\n  \"quantity\": 50,\n  \"image\": \"https://example.com/images/headphones.jpg\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/product/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "product",
+                "create"
+              ]
+            },
+            "description": "Create a new product (Admin and Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/product?page=1&limit=10&sort=-createdAt&searchTerm=wireless",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "product"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt",
+                  "description": "Sort by field (- for descending)"
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "wireless",
+                  "description": "Search in name and description"
+                },
+                {
+                  "key": "price",
+                  "value": "",
+                  "description": "Filter by price",
+                  "disabled": true
+                },
+                {
+                  "key": "isActive",
+                  "value": "",
+                  "description": "Filter by active status",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all products with pagination, search, and filtering (Public access)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "product",
+                "{{productId}}"
+              ]
+            },
+            "description": "Get single product by ID (Public access)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product (Admin, Super Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Wireless Headphones Pro\",\n  \"price\": 179.99,\n  \"quantity\": 45,\n  \"description\": \"Updated: High-quality wireless headphones with advanced noise cancellation, 35-hour battery life, and premium sound quality.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "product",
+                "{{productId}}"
+              ]
+            },
+            "description": "Update product by ID (Admin and Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product (Admin, Super Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/product/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "product",
+                "{{productId}}"
+              ]
+            },
+            "description": "Soft delete product by ID (Admin and Super Admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order & Payment",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.collectionVariables.set('orderId', jsonData.data._id);",
+                  "    }",
+                  "    if (jsonData.data && jsonData.data.paymentIntentId) {",
+                  "        pm.collectionVariables.set('paymentIntentId', jsonData.data.paymentIntentId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product\": \"696a40bc72b9f54599fe7813\",\n      \"quantity\": 2\n    }\n  ],\n  \"paymentMethod\": \"STRIPE\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerName\": \"John Doe\",\n  \"shippingAddress\": \"123 Main St, New York, NY 10001\",\n  \"notes\": \"Please handle with care\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "order",
+                "create"
+              ]
+            },
+            "description": "Create a new order with Stripe payment intent (Authenticated users)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order?page=1&limit=10&sort=-createdAt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "order"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                },
+                {
+                  "key": "sort",
+                  "value": "-createdAt",
+                  "description": "Sort by field"
+                },
+                {
+                  "key": "orderStatus",
+                  "value": "PENDING",
+                  "description": "Filter by order status",
+                  "disabled": true
+                },
+                {
+                  "key": "paymentStatus",
+                  "value": "PAID",
+                  "description": "Filter by payment status",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all orders (Users get their own, Admins get all)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Order",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "order",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Get single order by ID (Owner or Admin)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"COMPLETED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/order/{{orderId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "order",
+                "{{orderId}}",
+                "status"
+              ]
+            },
+            "description": "Update order status (Admin and Super Admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        },
+        "description": "Basic health check endpoint"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "paymentIntentId",
+      "value": ""
+    }
+  ]
 }

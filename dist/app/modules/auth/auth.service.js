@@ -109,7 +109,6 @@ const changePassword = (oldPassword, newPassword, decodedToken) => __awaiter(voi
     yield user.save();
 });
 exports.AuthServices = {
-    // credentialsLogin,
     getNewAccessToken,
     changePassword,
     setPassword,
