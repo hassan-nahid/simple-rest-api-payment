@@ -96,8 +96,8 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
                     },
                     quantity: item.quantity
                 })),
-                success_url: `${env_1.envVars.FRONTEND_URL}/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
-                cancel_url: `${env_1.envVars.FRONTEND_URL}/payment-cancelled?orderId=${tempOrder._id}`,
+                success_url: `${env_1.envVars.BASE_URL}/api/v1/order/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
+                cancel_url: `${env_1.envVars.BASE_URL}/api/v1/order/payment-cancelled?orderId=${tempOrder._id}`,
                 metadata: {
                     orderNumber,
                     orderId: tempOrder._id.toString(),
