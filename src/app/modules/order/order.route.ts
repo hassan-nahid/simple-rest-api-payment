@@ -8,12 +8,12 @@ import express from "express";
 
 const router = Router();
 
-// Stripe webhook - Must be before express.json() middleware
-router.post(
-    "/webhook",
-    express.raw({ type: 'application/json' }),
-    OrderControllers.handleStripeWebhook
-);
+// Note: Webhook route is now handled directly in app.ts before express.json() middleware
+// This ensures raw body access for Stripe signature verification
+
+// Payment success/cancel pages (no auth required)
+router.get("/payment-success", OrderControllers.paymentSuccess);
+router.get("/payment-cancelled", OrderControllers.paymentCancelled);
 
 // Create order (authenticated users)
 router.post(

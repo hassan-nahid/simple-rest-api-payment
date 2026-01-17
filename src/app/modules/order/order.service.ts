@@ -102,8 +102,8 @@ const createOrder = async (payload: Partial<IOrder>, user: JwtPayload) => {
                     },
                     quantity: item.quantity
                 })),
-                success_url: `${envVars.FRONTEND_URL}/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
-                cancel_url: `${envVars.FRONTEND_URL}/payment-cancelled?orderId=${tempOrder._id}`,
+                success_url: `${envVars.BASE_URL}/api/v1/order/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
+                cancel_url: `${envVars.BASE_URL}/api/v1/order/payment-cancelled?orderId=${tempOrder._id}`,
                 metadata: {
                     orderNumber,
                     orderId: tempOrder._id!.toString(),

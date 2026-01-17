@@ -113,6 +113,137 @@ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
     }
 });
 
+const paymentSuccess = async (req: Request, res: Response) => {
+    const { sessionId, orderId } = req.query;
+    
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Payment Successful</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+                .container {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                    text-align: center;
+                    max-width: 500px;
+                }
+                .success-icon {
+                    color: #10b981;
+                    font-size: 72px;
+                    margin-bottom: 20px;
+                }
+                h1 {
+                    color: #1f2937;
+                    margin-bottom: 10px;
+                }
+                p {
+                    color: #6b7280;
+                    line-height: 1.6;
+                }
+                .order-id {
+                    background: #f3f4f6;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    font-family: monospace;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="success-icon">✓</div>
+                <h1>Payment Successful!</h1>
+                <p>Your payment has been processed successfully.</p>
+                <div class="order-id">
+                    <strong>Order ID:</strong> ${orderId}<br>
+                    <strong>Session ID:</strong> ${sessionId}
+                </div>
+                <p>Your order status will be updated shortly. Thank you for your purchase!</p>
+            </div>
+        </body>
+        </html>
+    `);
+};
+
+const paymentCancelled = async (req: Request, res: Response) => {
+    const { orderId } = req.query;
+    
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Payment Cancelled</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                }
+                .container {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                    text-align: center;
+                    max-width: 500px;
+                }
+                .cancel-icon {
+                    color: #ef4444;
+                    font-size: 72px;
+                    margin-bottom: 20px;
+                }
+                h1 {
+                    color: #1f2937;
+                    margin-bottom: 10px;
+                }
+                p {
+                    color: #6b7280;
+                    line-height: 1.6;
+                }
+                .order-id {
+                    background: #f3f4f6;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    font-family: monospace;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="cancel-icon">✕</div>
+                <h1>Payment Cancelled</h1>
+                <p>Your payment has been cancelled. No charges were made.</p>
+                <div class="order-id">
+                    <strong>Order ID:</strong> ${orderId}
+                </div>
+                <p>You can try again anytime. Your order is still saved.</p>
+            </div>
+        </body>
+        </html>
+    `);
+};
+
 export const OrderControllers = {
     createOrder,
     getAllOrders,
@@ -120,5 +251,7 @@ export const OrderControllers = {
     updateOrderStatus,
     getPaymentIntentSecret,
     cancelOrder,
-    handleStripeWebhook
+    handleStripeWebhook,
+    paymentSuccess,
+    paymentCancelled
 };

@@ -12,6 +12,18 @@ import notFound from "./app/middleware/notFound";
 
 const app = express();
 
+// Stripe webhook endpoint MUST be before express.json() middleware
+// This allows raw body access for webhook signature verification
+app.post(
+    '/api/v1/order/webhook',
+    express.raw({ type: 'application/json' }),
+    async (req, res, next) => {
+        // Import dynamically to avoid circular dependency
+        const { OrderControllers } = await import('./app/modules/order/order.controller');
+        return OrderControllers.handleStripeWebhook(req, res, next);
+    }
+);
+
 app.use(expressSession({
     secret: envVars.EXPRESS_SESSION_SECRET,
     resave: false,
