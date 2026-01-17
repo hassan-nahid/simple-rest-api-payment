@@ -79,31 +79,71 @@ const createOrder = async (payload: Partial<IOrder>, user: JwtPayload) => {
         notes
     };
 
-    // Create Stripe payment intent if payment method is STRIPE
+    // Create Stripe Checkout Session if payment method is STRIPE
+    let checkoutUrl: string | null = null;
+
     if (paymentMethod === PaymentMethod.STRIPE) {
         try {
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: Math.round(totalAmount * 100), // Convert to cents
-                currency: 'usd',
+            // Create order first to get order ID
+            const tempOrder = await Order.create(orderData);
+
+            // Create Stripe Checkout Session
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                mode: 'payment',
+                line_items: orderItems.map(item => ({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: item.name,
+                            description: `Quantity: ${item.quantity}`
+                        },
+                        unit_amount: Math.round(item.price * 100) // Convert to cents
+                    },
+                    quantity: item.quantity
+                })),
+                success_url: `${envVars.FRONTEND_URL}/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
+                cancel_url: `${envVars.FRONTEND_URL}/payment-cancelled?orderId=${tempOrder._id}`,
                 metadata: {
                     orderNumber,
+                    orderId: tempOrder._id!.toString(),
                     userId: user.userId.toString(),
                     userEmail: user.email
-                },
-                description: `Order ${orderNumber}`,
-                receipt_email: customerEmail || user.email
+                }
             });
 
-            orderData.paymentIntentId = paymentIntent.id;
+            // Update order with session ID
+            tempOrder.stripeSessionId = session.id;
+            await tempOrder.save();
+
+            checkoutUrl = session.url;
+
+            // Update product quantities
+            for (const item of orderItems) {
+                await Product.findByIdAndUpdate(
+                    item.product,
+                    { $inc: { quantity: -item.quantity } },
+                    { new: true }
+                );
+            }
+
+            const populatedOrder = await Order.findById(tempOrder._id)
+                .populate('user', 'name email')
+                .populate('items.product', 'name image');
+
+            return {
+                order: populatedOrder,
+                checkoutUrl // Frontend will redirect to this URL
+            };
         } catch (error: any) {
             throw new AppError(
                 httpStatus.INTERNAL_SERVER_ERROR,
-                `Stripe payment intent creation failed: ${error.message}`
+                `Stripe checkout session creation failed: ${error.message}`
             );
         }
     }
 
-    // Create order
+    // Create order for non-Stripe payments
     const order = await Order.create(orderData);
 
     // Update product quantities
@@ -119,7 +159,10 @@ const createOrder = async (payload: Partial<IOrder>, user: JwtPayload) => {
         .populate('user', 'name email')
         .populate('items.product', 'name image');
 
-    return populatedOrder;
+    return {
+        order: populatedOrder,
+        checkoutUrl: null
+    };
 };
 
 // Get all orders (admin) or user's orders
@@ -214,7 +257,53 @@ const updateOrderStatus = async (
 
 // Handle Stripe webhook events
 const handleStripeWebhook = async (event: Stripe.Event) => {
+    console.log(`\n🔔 Webhook received: ${event.type}`);
+    
     switch (event.type) {
+        // Checkout Session completed - PRIMARY EVENT
+        case 'checkout.session.completed': {
+            const session = event.data.object as Stripe.Checkout.Session;
+            console.log(`📋 Session ID: ${session.id}`);
+            
+            const order = await Order.findOne({ stripeSessionId: session.id });
+            
+            if (order) {
+                order.paymentStatus = PaymentStatus.PAID;
+                order.orderStatus = OrderStatus.PROCESSING;
+                order.paidAt = new Date();
+                await order.save();
+                
+                console.log(`✅ Payment succeeded via checkout for order: ${order.orderNumber}`);
+            } else {
+                console.log(`❌ Order not found for session: ${session.id}`);
+            }
+            break;
+        }
+
+        // Checkout Session expired
+        case 'checkout.session.expired': {
+            const session = event.data.object as Stripe.Checkout.Session;
+            
+            const order = await Order.findOne({ stripeSessionId: session.id });
+            
+            if (order && order.paymentStatus === PaymentStatus.PENDING) {
+                order.orderStatus = OrderStatus.CANCELLED;
+                order.paymentStatus = PaymentStatus.FAILED;
+                await order.save();
+
+                // Restore product quantities
+                for (const item of order.items) {
+                    await Product.findByIdAndUpdate(
+                        item.product,
+                        { $inc: { quantity: item.quantity } }
+                    );
+                }
+                
+                console.log(`⏱️ Checkout session expired for order: ${order.orderNumber}`);
+            }
+            break;
+        }
+
         case 'payment_intent.succeeded': {
             const paymentIntent = event.data.object as Stripe.PaymentIntent;
             
@@ -304,7 +393,16 @@ const cancelOrder = async (id: string, user: JwtPayload) => {
         );
     }
 
-    // Cancel Stripe payment intent if exists
+    // Cancel Stripe session if exists
+    if (order.stripeSessionId) {
+        try {
+            await stripe.checkout.sessions.expire(order.stripeSessionId);
+        } catch (error: any) {
+            console.error('Stripe session expiration error:', error.message);
+        }
+    }
+
+    // Cancel Stripe payment intent if exists (legacy support)
     if (order.paymentIntentId) {
         try {
             await stripe.paymentIntents.cancel(order.paymentIntentId);

@@ -15,8 +15,13 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.CREATED,
-        message: "Order created successfully",
-        data: result
+        message: result.checkoutUrl 
+            ? "Order created successfully. Redirecting to payment..." 
+            : "Order created successfully",
+        data: {
+            order: result.order,
+            checkoutUrl: result.checkoutUrl // Frontend will auto redirect to this URL
+        }
     });
 });
 

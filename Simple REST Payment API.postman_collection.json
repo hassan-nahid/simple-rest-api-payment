@@ -710,6 +710,264 @@
 			]
 		},
 		{
+			"name": "Order & Payment",
+			"item": [
+				{
+					"name": "Create Order (Get Checkout URL)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    // Save order ID",
+									"    if (jsonData.data && jsonData.data.order && jsonData.data.order._id) {",
+									"        pm.collectionVariables.set('orderId', jsonData.data.order._id);",
+									"        console.log('✅ Order ID: ' + jsonData.data.order._id);",
+									"    }",
+									"    ",
+									"    // Save and display checkout URL",
+									"    if (jsonData.data && jsonData.data.checkoutUrl) {",
+									"        pm.collectionVariables.set('checkoutUrl', jsonData.data.checkoutUrl);",
+									"        console.log('');",
+									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"        console.log('🎉 ORDER CREATED SUCCESSFULLY!');",
+									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"        console.log('');",
+									"        console.log('📋 CHECKOUT URL:');",
+									"        console.log(jsonData.data.checkoutUrl);",
+									"        console.log('');",
+									"        console.log('👉 COPY THE URL ABOVE AND PASTE IN YOUR BROWSER');",
+									"        console.log('💳 Use test card: 4242 4242 4242 4242');",
+									"        console.log('📅 Expiry: 12/26 | CVC: 123');",
+									"        console.log('');",
+									"        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"product\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ],\n  \"paymentMethod\": \"STRIPE\",\n  \"customerEmail\": \"customer@example.com\",\n  \"customerName\": \"John Doe\",\n  \"shippingAddress\": \"123 Main St, New York, NY 10001\",\n  \"notes\": \"Please handle with care\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"create"
+							]
+						},
+						"description": "Create order and get Stripe Checkout URL. Copy the checkoutUrl from Console tab and open in browser to complete payment."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order?page=1&limit=10&sort=-createdAt",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page"
+								},
+								{
+									"key": "sort",
+									"value": "-createdAt",
+									"description": "Sort by field"
+								},
+								{
+									"key": "orderStatus",
+									"value": "PENDING",
+									"description": "Filter by order status",
+									"disabled": true
+								},
+								{
+									"key": "paymentStatus",
+									"value": "PAID",
+									"description": "Filter by payment status",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all orders (Users get their own, Admins get all)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Order",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"{{orderId}}"
+							]
+						},
+						"description": "Get order details by ID. Use this to verify payment status after completing Stripe checkout."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order Status (Admin)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderStatus\": \"PROCESSING\",\n  \"paymentStatus\": \"PAID\",\n  \"notes\": \"Payment verified and order is being processed\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"{{orderId}}",
+								"status"
+							]
+						},
+						"description": "Update order status (Admin and Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order/{{orderId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"{{orderId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel pending order, expire Stripe session, and restore product stock"
+					},
+					"response": []
+				},
+				{
+					"name": "Stripe Webhook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "stripe-signature",
+								"value": "your_stripe_signature_here",
+								"description": "Stripe webhook signature"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"object\": \"event\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_123\",\n      \"amount\": 29999,\n      \"currency\": \"usd\",\n      \"status\": \"succeeded\"\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/order/webhook",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"order",
+								"webhook"
+							]
+						},
+						"description": "⚠️ Webhook endpoint called automatically by Stripe after payment events. Don't call manually unless testing."
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Health Check",
 			"request": {
 				"method": "GET",
@@ -746,6 +1004,16 @@
 		},
 		{
 			"key": "productId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "checkoutUrl",
 			"value": "",
 			"type": "string"
 		}
