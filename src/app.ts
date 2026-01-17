@@ -9,6 +9,7 @@ import { envVars } from "./app/config/env";
 import { router } from "./app/routers";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFound";
+import { OrderControllers } from "./app/modules/order/order.controller";
 
 const app = express();
 
@@ -17,11 +18,7 @@ const app = express();
 app.post(
     '/api/v1/order/webhook',
     express.raw({ type: 'application/json' }),
-    async (req, res, next) => {
-        // Import dynamically to avoid circular dependency
-        const { OrderControllers } = await import('./app/modules/order/order.controller');
-        return OrderControllers.handleStripeWebhook(req, res, next);
-    }
+    OrderControllers.handleStripeWebhook
 );
 
 app.use(expressSession({
