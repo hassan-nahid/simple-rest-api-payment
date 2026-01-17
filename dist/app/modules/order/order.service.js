@@ -20,6 +20,7 @@ const QueryBuilder_1 = require("../../utils/QueryBuilder");
 const product_model_1 = require("../product/product.model");
 const order_interface_1 = require("./order.interface");
 const order_model_1 = require("./order.model");
+const env_1 = require("../../config/env");
 // Generate unique order number
 const generateOrderNumber = () => {
     const timestamp = Date.now().toString();
@@ -74,27 +75,57 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
         shippingAddress,
         notes
     };
-    // Create Stripe payment intent if payment method is STRIPE
+    // Create Stripe Checkout Session if payment method is STRIPE
+    let checkoutUrl = null;
     if (paymentMethod === order_interface_1.PaymentMethod.STRIPE) {
         try {
-            const paymentIntent = yield stripe_config_1.stripe.paymentIntents.create({
-                amount: Math.round(totalAmount * 100), // Convert to cents
-                currency: 'usd',
+            // Create order first to get order ID
+            const tempOrder = yield order_model_1.Order.create(orderData);
+            // Create Stripe Checkout Session
+            const session = yield stripe_config_1.stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                mode: 'payment',
+                line_items: orderItems.map(item => ({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: item.name,
+                            description: `Quantity: ${item.quantity}`
+                        },
+                        unit_amount: Math.round(item.price * 100) // Convert to cents
+                    },
+                    quantity: item.quantity
+                })),
+                success_url: `${env_1.envVars.FRONTEND_URL}/payment-success?sessionId={CHECKOUT_SESSION_ID}&orderId=${tempOrder._id}`,
+                cancel_url: `${env_1.envVars.FRONTEND_URL}/payment-cancelled?orderId=${tempOrder._id}`,
                 metadata: {
                     orderNumber,
+                    orderId: tempOrder._id.toString(),
                     userId: user.userId.toString(),
                     userEmail: user.email
-                },
-                description: `Order ${orderNumber}`,
-                receipt_email: customerEmail || user.email
+                }
             });
-            orderData.paymentIntentId = paymentIntent.id;
+            // Update order with session ID
+            tempOrder.stripeSessionId = session.id;
+            yield tempOrder.save();
+            checkoutUrl = session.url;
+            // Update product quantities
+            for (const item of orderItems) {
+                yield product_model_1.Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } }, { new: true });
+            }
+            const populatedOrder = yield order_model_1.Order.findById(tempOrder._id)
+                .populate('user', 'name email')
+                .populate('items.product', 'name image');
+            return {
+                order: populatedOrder,
+                checkoutUrl // Frontend will redirect to this URL
+            };
         }
         catch (error) {
-            throw new AppError_1.default(http_status_codes_1.default.INTERNAL_SERVER_ERROR, `Stripe payment intent creation failed: ${error.message}`);
+            throw new AppError_1.default(http_status_codes_1.default.INTERNAL_SERVER_ERROR, `Stripe checkout session creation failed: ${error.message}`);
         }
     }
-    // Create order
+    // Create order for non-Stripe payments
     const order = yield order_model_1.Order.create(orderData);
     // Update product quantities
     for (const item of orderItems) {
@@ -103,7 +134,10 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
     const populatedOrder = yield order_model_1.Order.findById(order._id)
         .populate('user', 'name email')
         .populate('items.product', 'name image');
-    return populatedOrder;
+    return {
+        order: populatedOrder,
+        checkoutUrl: null
+    };
 });
 // Get all orders (admin) or user's orders
 const getAllOrders = (query, user) => __awaiter(void 0, void 0, void 0, function* () {
@@ -175,6 +209,35 @@ const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, fun
 // Handle Stripe webhook events
 const handleStripeWebhook = (event) => __awaiter(void 0, void 0, void 0, function* () {
     switch (event.type) {
+        // Checkout Session completed - PRIMARY EVENT
+        case 'checkout.session.completed': {
+            const session = event.data.object;
+            const order = yield order_model_1.Order.findOne({ stripeSessionId: session.id });
+            if (order) {
+                order.paymentStatus = order_interface_1.PaymentStatus.PAID;
+                order.orderStatus = order_interface_1.OrderStatus.PROCESSING;
+                order.paidAt = new Date();
+                yield order.save();
+                console.log(`✅ Payment succeeded via checkout for order: ${order.orderNumber}`);
+            }
+            break;
+        }
+        // Checkout Session expired
+        case 'checkout.session.expired': {
+            const session = event.data.object;
+            const order = yield order_model_1.Order.findOne({ stripeSessionId: session.id });
+            if (order && order.paymentStatus === order_interface_1.PaymentStatus.PENDING) {
+                order.orderStatus = order_interface_1.OrderStatus.CANCELLED;
+                order.paymentStatus = order_interface_1.PaymentStatus.FAILED;
+                yield order.save();
+                // Restore product quantities
+                for (const item of order.items) {
+                    yield product_model_1.Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+                }
+                console.log(`⏱️ Checkout session expired for order: ${order.orderNumber}`);
+            }
+            break;
+        }
         case 'payment_intent.succeeded': {
             const paymentIntent = event.data.object;
             const order = yield order_model_1.Order.findOne({ paymentIntentId: paymentIntent.id });
@@ -238,7 +301,16 @@ const cancelOrder = (id, user) => __awaiter(void 0, void 0, void 0, function* ()
     if (order.orderStatus !== order_interface_1.OrderStatus.PENDING) {
         throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Only pending orders can be cancelled");
     }
-    // Cancel Stripe payment intent if exists
+    // Cancel Stripe session if exists
+    if (order.stripeSessionId) {
+        try {
+            yield stripe_config_1.stripe.checkout.sessions.expire(order.stripeSessionId);
+        }
+        catch (error) {
+            console.error('Stripe session expiration error:', error.message);
+        }
+    }
+    // Cancel Stripe payment intent if exists (legacy support)
     if (order.paymentIntentId) {
         try {
             yield stripe_config_1.stripe.paymentIntents.cancel(order.paymentIntentId);

@@ -257,13 +257,10 @@ const updateOrderStatus = async (
 
 // Handle Stripe webhook events
 const handleStripeWebhook = async (event: Stripe.Event) => {
-    console.log(`\n🔔 Webhook received: ${event.type}`);
-    
     switch (event.type) {
         // Checkout Session completed - PRIMARY EVENT
         case 'checkout.session.completed': {
             const session = event.data.object as Stripe.Checkout.Session;
-            console.log(`📋 Session ID: ${session.id}`);
             
             const order = await Order.findOne({ stripeSessionId: session.id });
             
@@ -274,8 +271,6 @@ const handleStripeWebhook = async (event: Stripe.Event) => {
                 await order.save();
                 
                 console.log(`✅ Payment succeeded via checkout for order: ${order.orderNumber}`);
-            } else {
-                console.log(`❌ Order not found for session: ${session.id}`);
             }
             break;
         }
